@@ -11,6 +11,8 @@ app.engine('.hbs', hbs({
     extname: '.hbs'
 }));
 
+app.use(express.static('views/images')); 
+
 app.set('view engine', '.hbs');
 
 app.get('/', function(req, res){
