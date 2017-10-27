@@ -18,9 +18,9 @@
 				canvas.addEventListener('mousedown', function(e) {
 					arise();
 				});
+
 				 document.addEventListener('keydown', function(e) {
 			            e = e || window.event;
-
 					    if (e.keyCode == '40') {
 					        cameray+=32;
 					        yoffset-=32;
@@ -46,6 +46,8 @@
 					    }
 					    else if (e.keyCode == '8') {
 					    	limpiarJ();
+					    }else if (e.keyCode == '80') {
+					    	limpiarMap();
 					    }
 			   	 }, false);
 			
@@ -53,44 +55,40 @@
 			var tileHeigth = 32;
 			var xoffset = (canvas_width/2) - tileWidth/2;
 			var yoffset = 0;
-
-
 			var ctx = canvas.getContext("2d");
 				ctx.font = "48px Arial";
 				ctx.strokeStyle = 'black';
 				ctx.lineWidth = 1;
 				ctx.translate(xoffset, yoffset);
+				//ctx.scale(1,1);
 			
 			//ctx.translate(2*64,0);
 			var camerax = -xoffset;
 			var cameray = -yoffset;
 			var camera_width = canvas_width;
 			var camera_height = canvas_height;
-
-
 			var image_tiles = new Image();
 			image_tiles.addEventListener("load", function() {
 				generar(mapw,maph);
 				for(var ite = 0; ite<generaciones;ite++){
 					doStep();
 				}
+				//limpiarJ();
+				//limpiarJ();
 				ciclo();
 			});
 			image_tiles.src = 'tiles.png';
-
 			var mapData = [];
 			
 			var mousePoint = [];
-
 			/********/
 			var mapw = 30;
 			var maph = 30;
-			var generaciones = 2;  // 2    | 0    | 0    | 0
+			var generaciones = 0;  // 2    | 0    | 0    | 0
 			var proba = 0.45;       // 0.45 | 0.45 | 0.99 | 0.2
-			var p_revivir = 0;     // 0    | 1    | 1    | 0
-			var p_muertebaja = 1;  // 1    | 1    | 1    | 7
-			var p_muerte_alta = 2; // 2    | 2    | 7    | 8
-
+			var p_revivir = 3;     // 0    | 1    | 1    | 0
+			var p_muertebaja = 2;  // 1    | 1    | 1    | 7
+			var p_muerte_alta = 3; // 2    | 2    | 7    | 8
 			function generar(anchot,altot) {
 				for(var j = 0; j < altot; j++){
 					var arrtemp = [];
@@ -106,21 +104,14 @@
 				}
 				//imprimirMap(mapData);
 			}
-
 			function doStep(){
-
 				var mapresultado = [];
 				var mapbk = [];
-
 				mapbk = mapData.slice(0);
-
 				for(var j = 0; j < maph; j++){
-
 					var mapresultadotemp = [];
 					for(var i = 0; i < mapw; i++){
-
 						var vivitos = 0;
-
 						for(var y = j-1; y <= j+1; y++) {
 							for(var x = i-1; x <= i+1; x++) {
 								if(x != i || y != j) {
@@ -130,7 +121,6 @@
 								}
 							}
 						}
-
 						//alert("(" + i + ", " + j + ") = " + vivitos);
 						
 						if(mapbk[j][i] == 1){
@@ -146,7 +136,6 @@
 								mapresultadotemp.push(0);
 							}
 						}
-
 					}
 					mapresultado.push(mapresultadotemp);
 				}
@@ -154,21 +143,14 @@
 				mapData = mapresultado.slice(0);
 				//imprimirMap(mapresultado);
 			}
-
 			function limpiarJ(){
-
 				var mapresultado = [];
 				var mapbk = [];
-
 				mapbk = mapData.slice(0);
-
 				for(var j = 0; j < maph; j++){
-
 					var mapresultadotemp = [];
 					for(var i = 0; i < mapw; i++){
-
 						var vivitos = 0;
-
 						for(var y = j-1; y <= j+1; y++) {
 							for(var x = i-1; x <= i+1; x++) {
 								if(x != i || y != j) {
@@ -178,7 +160,6 @@
 								}
 							}
 						}
-
 						if(mapbk[j][i] == 1) {
 							//if(vivitos >= 0 && vivitos <= 2) {
 							if(vivitos <= 1) {
@@ -200,6 +181,21 @@
 				mapData = mapresultado.slice(0);
 			}
 
+			function limpiarMap(){
+				var mapresultado = [];
+				var mapbk = [];
+				mapbk = mapData.slice(0);
+				for(var j = 0; j < maph; j++){
+					var mapresultadotemp = [];
+					for(var i = 0; i < mapw; i++){
+						mapresultadotemp.push(0);
+					}
+					mapresultado.push(mapresultadotemp);
+				}
+				mapData = [];
+				mapData = mapresultado.slice(0);
+			}
+
 			function arise() {
 				var qq = isoToCar(Math.floor(mousePoint[0]-tileHeigth - xoffset),Math.floor(mousePoint[1] - yoffset));
 				var x = Math.floor(qq[0]/tileHeigth);
@@ -210,7 +206,6 @@
 					mapData[y][x] = 1;
 				}
 			}
-
 			function imprimirMap(arreglo){
 				var j = arreglo.length;
 				var i = arreglo[0].length;
@@ -224,9 +219,7 @@
 				}
 				alert(mapacad);
 			}
-
 			/********/
-
 			function drawWorld(){
 				for(var j=0; j<mapData.length; j++){
 					var mapRow = mapData[j];
@@ -235,7 +228,6 @@
 					}
 				}
 			}
-
 			function drawMouse(){
 				var point = isoToCar(Math.floor(mousePoint[0]-tileHeigth - xoffset),Math.floor(mousePoint[1] - yoffset));
 				ctx.fillText(Math.floor(point[0]/tileHeigth)+' , '+Math.floor(point[1]/tileHeigth),	mousePoint[0]-xoffset,mousePoint[1]-yoffset);
@@ -243,29 +235,24 @@
 				 // 						mousePoint[0]-xoffset,
 					// 					mousePoint[1]);
 			}
-
 			function drawTile(x,y,tile){
 				var point = carToIso(x,y);
 				ctx.drawImage(image_tiles, tile * tileWidth, 0, tileWidth, tileHeigth + 8, point[0] * tileWidth/2, point[1] * tileHeigth + (tile == 0 ? 4 : 0), tileWidth, tileHeigth + 8);
 				//ctx.drawImage(image_tiles,tile*tileWidth,0,tileWidth,tileHeigth,point[0]*tileWidth/2,point[1]*tileHeigth,tileWidth,tileHeigth);
 				
 			}
-
 			function isoToCar(isoX, isoY){
 				var carPoint = [];
 				carPoint[0] = (2 * isoY + isoX) / 2;
 				carPoint[1] = (isoY - isoX/2);
 				return carPoint;
 			}
-
 			function carToIso(carX, carY){
 				var isoPoint = [];
 				isoPoint[0] = carX - carY;
 				isoPoint[1] = (carX + carY) / 2;
 				return isoPoint;
 			}
-
-
 			function ciclo(){
 				ctx.clearRect(camerax, cameray ,camera_width,camera_height);
 				drawWorld();
@@ -278,6 +265,6 @@
 		<title>Game_inDev</title>
 	</head>
 	<body onload="init()">
-		<canvas id="mygame" width="1200" height="800" style="border: 1px solid black; margin-left: -8px; margin-top: -9px"></canvas>
+		<canvas id="mygame" width="1800" height="800" style="border: 1px solid black; margin-left: -8px; margin-top: -9px"></canvas>
 	</body>
 </html>
