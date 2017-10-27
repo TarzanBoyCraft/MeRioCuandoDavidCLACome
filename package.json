@@ -2,8 +2,9 @@
   "name": "meriocuandodavidclacome",
   "version": "1.0.0",
   "description": "js canvas game socket.io alv",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,15 @@
   "bugs": {
     "url": "https://github.com/TarzanBoyCraft/MeRioCuandoDavidCLaCome/issues"
   },
-  "homepage": "https://github.com/TarzanBoyCraft/MeRioCuandoDavidCLaCome#readme"
+  "homepage": "https://github.com/TarzanBoyCraft/MeRioCuandoDavidCLaCome#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "express-handlebars": "^3.0.0",
+    "mongoose": "^4.12.4",
+    "socket.io": "^2.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.1"
+  }
 }

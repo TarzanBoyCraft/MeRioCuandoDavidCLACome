@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+	<style>
+		canvas {
+	  		image-rendering: pixelated;
+	  		background: #000;
+		}
+	</style>
+	<script>
+		function init(){
+			var canvas = document.getElementById('mygame');
+			var canvas_width = canvas.width;
+			var canvas_height = canvas.height;
+				canvas.addEventListener('mousemove', function(e) {
+					mousePoint[0] = e.clientX;
+					mousePoint[1] = e.clientY;
+				});
+				canvas.addEventListener('mousedown', function(e) {
+					arise();
+				});
+				 document.addEventListener('keydown', function(e) {
+			            e = e || window.event;
+
+					    if (e.keyCode == '40') {
+					        cameray+=32;
+					        yoffset-=32;
+					        ctx.translate(0, -32);
+					    }
+					    else if (e.keyCode == '38') {
+					        yoffset+=32;
+					        cameray-=32;	
+					        ctx.translate(0, 32);
+					    }
+					    else if (e.keyCode == '39') {
+					       xoffset-=64;
+					       camerax+=64;
+					       ctx.translate(-64, 0);
+					    }
+					    else if (e.keyCode == '37') {
+					       xoffset+=64;
+					       camerax-=64;
+					       ctx.translate(64, 0);
+					    }
+					    else if (e.keyCode == '32') {
+					    	doStep();
+					    }
+					    else if (e.keyCode == '8') {
+					    	limpiarJ();
+					    }
+			   	 }, false);
+			
+			var tileWidth = 64;
+			var tileHeigth = 32;
+			var xoffset = (canvas_width/2) - tileWidth/2;
+			var yoffset = 0;
+
+
+			var ctx = canvas.getContext("2d");
+				ctx.font = "48px Arial";
+				ctx.strokeStyle = 'black';
+				ctx.lineWidth = 1;
+				ctx.translate(xoffset, yoffset);
+			
+			//ctx.translate(2*64,0);
+			var camerax = -xoffset;
+			var cameray = -yoffset;
+			var camera_width = canvas_width;
+			var camera_height = canvas_height;
+
+
+			var image_tiles = new Image();
+			image_tiles.addEventListener("load", function() {
+				generar(mapw,maph);
+				for(var ite = 0; ite<generaciones;ite++){
+					doStep();
+				}
+				ciclo();
+			});
+			image_tiles.src = 'tiles.png';
+
+			var mapData = [];
+			
+			var mousePoint = [];
+
+			/********/
+			var mapw = 30;
+			var maph = 30;
+			var generaciones = 2;  // 2    | 0    | 0    | 0
+			var proba = 0.45;       // 0.45 | 0.45 | 0.99 | 0.2
+			var p_revivir = 0;     // 0    | 1    | 1    | 0
+			var p_muertebaja = 1;  // 1    | 1    | 1    | 7
+			var p_muerte_alta = 2; // 2    | 2    | 7    | 8
+
+			function generar(anchot,altot) {
+				for(var j = 0; j < altot; j++){
+					var arrtemp = [];
+					for(var i = 0; i < anchot; i++){
+						var temp = Math.random();
+						if(temp <= proba){
+							arrtemp.push(1);
+						} else {
+							arrtemp.push(0);
+						}
+					}
+					mapData.push(arrtemp);
+				}
+				//imprimirMap(mapData);
+			}
+
+			function doStep(){
+
+				var mapresultado = [];
+				var mapbk = [];
+
+				mapbk = mapData.slice(0);
+
+				for(var j = 0; j < maph; j++){
+
+					var mapresultadotemp = [];
+					for(var i = 0; i < mapw; i++){
+
+						var vivitos = 0;
+
+						for(var y = j-1; y <= j+1; y++) {
+							for(var x = i-1; x <= i+1; x++) {
+								if(x != i || y != j) {
+									if(y >= 0 && y < maph && x >= 0 && x < mapw) {
+										vivitos += mapbk[y][x];
+									}
+								}
+							}
+						}
+
+						//alert("(" + i + ", " + j + ") = " + vivitos);
+						
+						if(mapbk[j][i] == 1){
+							if(vivitos < p_muertebaja || vivitos > p_muerte_alta){ // REGLA 1 Y 3
+								mapresultadotemp.push(0);
+							}else{ // REGLA 2
+								mapresultadotemp.push(1);
+							}
+						}else{ // REGLA 4
+							if(vivitos == p_revivir){
+								mapresultadotemp.push(1);
+							}else{
+								mapresultadotemp.push(0);
+							}
+						}
+
+					}
+					mapresultado.push(mapresultadotemp);
+				}
+				mapData = [];
+				mapData = mapresultado.slice(0);
+				//imprimirMap(mapresultado);
+			}
+
+			function limpiarJ(){
+
+				var mapresultado = [];
+				var mapbk = [];
+
+				mapbk = mapData.slice(0);
+
+				for(var j = 0; j < maph; j++){
+
+					var mapresultadotemp = [];
+					for(var i = 0; i < mapw; i++){
+
+						var vivitos = 0;
+
+						for(var y = j-1; y <= j+1; y++) {
+							for(var x = i-1; x <= i+1; x++) {
+								if(x != i || y != j) {
+									if(y >= 0 && y < maph && x >= 0 && x < mapw) {
+										vivitos += mapbk[y][x];
+									}
+								}
+							}
+						}
+
+						if(mapbk[j][i] == 1) {
+							//if(vivitos >= 0 && vivitos <= 2) {
+							if(vivitos <= 1) {
+								mapresultadotemp.push(0);
+							} else {
+								mapresultadotemp.push(1);
+							}
+						} else {
+							if(vivitos == 8) {
+								mapresultadotemp.push(1);
+							} else {
+								mapresultadotemp.push(0);
+							}
+						}
+					}
+					mapresultado.push(mapresultadotemp);
+				}
+				mapData = [];
+				mapData = mapresultado.slice(0);
+			}
+
+			function arise() {
+				var qq = isoToCar(Math.floor(mousePoint[0]-tileHeigth - xoffset),Math.floor(mousePoint[1] - yoffset));
+				var x = Math.floor(qq[0]/tileHeigth);
+				var y = Math.floor(qq[1]/tileHeigth);
+				if(mapData[y][x] == 1) {
+					mapData[y][x] = 0;
+				} else if(mapData[y][x] == 0) {
+					mapData[y][x] = 1;
+				}
+			}
+
+			function imprimirMap(arreglo){
+				var j = arreglo.length;
+				var i = arreglo[0].length;
+				var mapacad = "";
+				for(var y = 0; y < j; y++){
+					var cheng = arreglo[y];
+					for(var x = 0; x < i; x++){
+						mapacad+=cheng[x]+",";
+					}
+					mapacad+="\n";
+				}
+				alert(mapacad);
+			}
+
+			/********/
+
+			function drawWorld(){
+				for(var j=0; j<mapData.length; j++){
+					var mapRow = mapData[j];
+					for (var i=0; i<mapRow.length; i++){
+						drawTile(i,j,mapRow[i]);
+					}
+				}
+			}
+
+			function drawMouse(){
+				var point = isoToCar(Math.floor(mousePoint[0]-tileHeigth - xoffset),Math.floor(mousePoint[1] - yoffset));
+				ctx.fillText(Math.floor(point[0]/tileHeigth)+' , '+Math.floor(point[1]/tileHeigth),	mousePoint[0]-xoffset,mousePoint[1]-yoffset);
+				 // ctx.fillText(Math.floor(mousePoint[0]/tileHeigth)+' , '+Math.floor(mousePoint[1]/tileHeigth),
+				 // 						mousePoint[0]-xoffset,
+					// 					mousePoint[1]);
+			}
+
+			function drawTile(x,y,tile){
+				var point = carToIso(x,y);
+				ctx.drawImage(image_tiles, tile * tileWidth, 0, tileWidth, tileHeigth + 8, point[0] * tileWidth/2, point[1] * tileHeigth + (tile == 0 ? 4 : 0), tileWidth, tileHeigth + 8);
+				//ctx.drawImage(image_tiles,tile*tileWidth,0,tileWidth,tileHeigth,point[0]*tileWidth/2,point[1]*tileHeigth,tileWidth,tileHeigth);
+				
+			}
+
+			function isoToCar(isoX, isoY){
+				var carPoint = [];
+				carPoint[0] = (2 * isoY + isoX) / 2;
+				carPoint[1] = (isoY - isoX/2);
+				return carPoint;
+			}
+
+			function carToIso(carX, carY){
+				var isoPoint = [];
+				isoPoint[0] = carX - carY;
+				isoPoint[1] = (carX + carY) / 2;
+				return isoPoint;
+			}
+
+
+			function ciclo(){
+				ctx.clearRect(camerax, cameray ,camera_width,camera_height);
+				drawWorld();
+				drawMouse();
+				window.requestAnimationFrame(ciclo);
+			}
+		}
+	</script>
+	<head>
+		<title>Game_inDev</title>
+	</head>
+	<body onload="init()">
+		<canvas id="mygame" width="1260" height="600" style="border: 1px solid black; margin-left: -8px; margin-top: -9px"></canvas>
+	</body>
+</html>
